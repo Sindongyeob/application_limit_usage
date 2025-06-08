@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:orientation="vertical">
+
+    <ProgressBar
+        android:id="@+id/loading_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/quiz_question"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="문제가 여기에 표시됩니다"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/quiz_answer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="정답을 입력하세요"
+        android:inputType="text"
+        android:minHeight="48dp" />
+
+    <Button
+        android:id="@+id/btn_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="제출"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btn_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="힌트 보기"
+        android:visibility="gone"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/info_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textColor="#D32F2F"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

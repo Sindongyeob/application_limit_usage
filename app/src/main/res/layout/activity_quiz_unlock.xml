@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/quiz_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="퀴즈 로딩 중..."
+        android:textSize="18sp"
+        android:paddingBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/answer_edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:padding="12dp"
+        android:hint="정답 입력"
+        android:inputType="text" />
+
+    <Button
+        android:id="@+id/submit_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="제출"
+        android:layout_marginTop="16dp" />
+</LinearLayout>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_vertical"
+    android:background="?android:windowBackground">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="앱 사용 제한 해제를 위한 퀴즈 주제를 입력하세요"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"
+        android:textColor="@android:color/black" />
+
+    <EditText
+        android:id="@+id/subject_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="예: 물리학, 영화, 수학..."
+        android:inputType="text"
+        android:imeOptions="actionDone"
+        android:singleLine="true"
+        android:background="@android:drawable/edit_text"
+        android:textColor="@android:color/black"
+        android:textColorHint="@android:color/darker_gray"
+        android:textSize="16sp"
+        android:padding="12dp" />
+
+    <Button
+        android:id="@+id/btn_proceed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="퀴즈 풀기"
+        android:layout_marginTop="24dp"
+        android:textAllCaps="false"
+        android:textSize="16sp" />
+</LinearLayout>
