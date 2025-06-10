@@ -90,4 +90,20 @@ object AppUsageManager {
         resetLaunchCount(context, packageName)
         Log.d("AppUsageManager", "모든 제한 정보 초기화 완료: $packageName")
     }
+
+    fun getLimitForApp(context: Context, packageName: String): Int {
+        return AppLimitStorage.getLimitInfo(context, packageName)?.limitTimeMinutes ?: 0
+    }
+    fun getRemainingTime(context: Context, packageName: String): Int {
+        val limitMinutes = getLimitForApp(context, packageName)
+        val usedMillis = getUsedTimeToday(context, packageName)
+        val remainingMillis = limitMinutes * 60 * 1000L - usedMillis
+        return (remainingMillis / 1000 / 60).toInt().coerceAtLeast(0)
+    }
+    fun isAppBlocked(context: Context, packageName: String): Boolean {
+        val limitMinutes = getLimitForApp(context, packageName)
+        val usedMillis = getUsedTimeToday(context, packageName)
+        return limitMinutes > 0 && usedMillis >= limitMinutes * 60 * 1000L
+    }
+
 }

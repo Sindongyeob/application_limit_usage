@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5" />
+
+    <ImageView
+
+            android:id="@+id/characterImage"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+    />
+    <!--        android:src="@drawable/ic_character"  본인의 이미지 리소스로 교체 -->
+    <!--        android:contentDescription="캐릭터 이미지" -->
+
+    <ProgressBar
+            android:id="@+id/expBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="8dp"
+            android:progress="89"
+            android:max="100" /><!-- 0~100 값 -->
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center"
+            android:layout_marginBottom="64dp">
+
+        <Button
+                android:id="@+id/button1"
+                android:layout_width="3dp"
+                android:layout_height="126dp"
+                android:layout_weight="1"
+                android:text="어플리케이션 제한 설정" />
+
+        <Button
+                android:id="@+id/button2"
+                android:layout_width="0dp"
+                android:layout_height="130dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="환기 알람 설정" />
+    </LinearLayout>
+</LinearLayout>

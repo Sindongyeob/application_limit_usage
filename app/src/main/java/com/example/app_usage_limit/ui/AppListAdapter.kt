@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.app_usage_limit.R
 
 class AppListAdapter(
-    private val apps: List<AppInfo>,
+    private val apps: MutableList<AppInfo>,
     private val onItemClick: (AppInfo) -> Unit
 ) : RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
 
@@ -19,7 +19,8 @@ class AppListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_app, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.app_list_item, parent, false)  // ✅ 파일명 일치 확인
         return ViewHolder(view)
     }
 
@@ -31,5 +32,10 @@ class AppListAdapter(
     }
 
     override fun getItemCount(): Int = apps.size
-}
 
+    fun updateData(newApps: List<AppInfo>) {
+        apps.clear()
+        apps.addAll(newApps)
+        notifyDataSetChanged()
+    }
+}

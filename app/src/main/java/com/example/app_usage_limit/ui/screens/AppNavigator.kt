@@ -35,6 +35,14 @@ fun AppNavigator() {
 
         composable("home") {
             HomeScreen(
+                onAppRestrictionClick = { navController.navigate("applist") },
+                onAlarmSettingClick = { /* 환기 알람 설정 화면으로 이동 */ }
+            )
+        }
+
+
+        composable("applist") {
+            AppListScreen(
                 appList = appList,
                 justGrantedPermission = justGrantedPermission,
                 onAppSelect = { packageName ->
