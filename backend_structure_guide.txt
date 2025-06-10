@@ -1,0 +1,84 @@
+
+Android 앱 백엔드 구조 설명서 (프론트엔드 개발자용)
+
+📌 프로젝트 개요
+--------------------
+이 앱은 특정 앱의 사용을 시간, 횟수 또는 특정 시간대에 제한하고, 제한된 앱을 실행하려고 할 경우 퀴즈를 통해 제한을 해제하는 시스템입니다. 접근성 서비스를 이용해 앱 사용을 감지하고, ChatGPT API를 활용한 퀴즈 기능을 포함합니다.
+
+⚙ 주요 기능 흐름
+--------------------
+1. 앱 실행 시 접근성 권한 확인 → 설정 유도
+2. 사용자 앱 선택 및 제한 시간/횟수 설정
+3. 제한된 앱 실행 시 차단 화면(BlockActivity) 표시
+4. 사용자 주제 입력 → 퀴즈 생성 및 풀기
+5. 정답 시 제한 해제 → 앱 사용 가능
+
+🧭 화면(UI) 흐름
+--------------------
+1. HomeScreen
+   - 제한된 앱 목록 및 상태 표시
+   - 앱별 제한 설정 화면으로 이동 가능
+
+2. AccessibilityPermissionScreen
+   - 접근성 권한 설정 안내
+
+3. SetLimitScreen
+   - 앱 선택 후 제한 시간, 횟수, 시간대 설정
+
+4. BlockActivity
+   - 제한 초과된 앱 실행 시 표시되는 차단 화면
+
+5. SubjectInputActivity
+   - 사용자가 퀴즈 주제를 입력
+
+6. QuizActivity
+   - ChatGPT API로 생성된 퀴즈를 풀어야 제한 해제 가능
+
+📂 주요 클래스 및 역할
+--------------------
+- AppUsageManager.kt
+  - 앱 사용 시간 및 실행 횟수 기록
+  - 현재 앱의 사용량 확인 메서드 포함
+
+- AppLimitStorage.kt
+  - 제한 시간/횟수 정보를 SharedPreferences에 저장 및 불러오기
+
+- AppBlockManager.kt
+  - 제한 조건 충족 여부 확인
+  - 차단 여부 판별 및 차단 흐름 처리
+
+- AppBlockAccessibilityService.kt
+  - 현재 포그라운드 앱을 감지
+  - 제한 여부 판단 및 차단 화면 호출
+
+- UnblockManager.kt
+  - 퀴즈 정답 시 차단 해제 상태 관리
+
+- SubjectInputActivity.kt
+  - 퀴즈 주제를 사용자로부터 입력받는 화면
+
+- QuizActivity.kt
+  - ChatGPT API 연동하여 퀴즈 생성
+  - 정답 제출 시 제한 해제 여부 판단
+
+📌 프론트엔드 개발자가 확인할 사항
+--------------------
+- UI는 기본 구조만 구현되어 있음 → 자유롭게 UI 리팩토링 가능
+- 앱 리스트는 AppLimitStorage.getAllLimitedApps(context) 활용
+- 제한 조건 UI는 SetLimitScreen 중심으로 구성됨
+- 차단 해제 로직은 QuizActivity와 UnblockManager 연계됨
+- 화면 전환은 모두 Intent 기반
+
+🔐 ChatGPT API 사용 관련
+--------------------
+- API 키는 local.properties에 저장되어 있음
+- QuizManager.kt에서 API 호출 및 퀴즈 생성
+
+🧪 테스트 방법
+--------------------
+1. 앱 설치 후 접근성 권한 허용
+2. 앱 목록에서 하나 선택 → 제한 시간 설정
+3. 해당 앱 실행 시 BlockActivity 진입
+4. 주제 입력 → 퀴즈 진행 → 정답 시 차단 해제
+
+이 문서를 통해 전체 흐름 및 구조를 이해하고 프론트엔드 작업을 진행하시면 됩니다.
