@@ -26,19 +26,21 @@ object AppLimitStorage {
         context: Context,
         packageName: String,
         limitTimeMinutes: Int = -1,
-        endTimeMillis: Long = -1,
         limitCount: Int = -1,
-        limitType: LimitType = LimitType.TIME_LIMIT
+        limitType: LimitType = LimitType.TIME_LIMIT,
+        startTimeMillis: Long = -1,
+        endTimeMillis: Long = -1,
+        isBlocked: Boolean = false
     ) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val json = JSONObject().apply {
             put("packageName", packageName)
             put("limitTimeMinutes", limitTimeMinutes)
             put("limitCount", limitCount)
-            put("startTimeMillis", System.currentTimeMillis())
+            put("startTimeMillis", if (startTimeMillis != -1L) startTimeMillis else System.currentTimeMillis())
             put("endTimeMillis", endTimeMillis)
             put("limitType", limitType.name)
-            put("isBlocked", true)
+            put("isBlocked", isBlocked)
         }
         prefs.edit { putString("$KEY_PREFIX$packageName", json.toString()) }
     }
@@ -55,8 +57,18 @@ object AppLimitStorage {
             startTimeMillis = json.optLong("startTimeMillis", -1),
             endTimeMillis = json.optLong("endTimeMillis", -1),
             limitType = LimitType.valueOf(json.optString("limitType", LimitType.TIME_LIMIT.name)),
-            isBlocked = json.optBoolean("isBlocked", true)
+            isBlocked = json.optBoolean("isBlocked", false)
         )
+    }
+
+    fun clearLimitInfo(context: Context, packageName: String) {
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        prefs.edit {
+            remove("$KEY_PREFIX$packageName")
+            remove(KEY_TIME_LIMIT + packageName)
+            remove(KEY_LAUNCH_LIMIT + packageName)
+            remove(packageName + UNLOCKED_SUFFIX)
+        }
     }
 
     fun getAllLimitedApps(context: Context): List<AppLimitInfo> {
@@ -71,7 +83,7 @@ object AppLimitStorage {
                 startTimeMillis = json.optLong("startTimeMillis", -1),
                 endTimeMillis = json.optLong("endTimeMillis", -1),
                 limitType = LimitType.valueOf(json.optString("limitType", LimitType.TIME_LIMIT.name)),
-                isBlocked = json.optBoolean("isBlocked", true)
+                isBlocked = json.optBoolean("isBlocked", false)
             )
         }
     }
@@ -96,7 +108,7 @@ object AppLimitStorage {
 
         val updatedEntries = prefs.all.mapNotNull { (key, value) ->
             val json = JSONObject(value as? String ?: return@mapNotNull null)
-            val isBlocked = json.optBoolean("isBlocked", true)
+            val isBlocked = json.optBoolean("isBlocked", false)
             val limitType = LimitType.valueOf(json.optString("limitType", LimitType.TIME_LIMIT.name))
 
             val shouldUnblock = when (limitType) {
@@ -128,7 +140,6 @@ object AppLimitStorage {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         prefs.edit { putInt(KEY_TIME_LIMIT + packageName, minutes) }
     }
-
     fun getTimeLimit(context: Context, packageName: String): Int {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         return prefs.getInt(KEY_TIME_LIMIT + packageName, 0)

@@ -1,115 +1,142 @@
 package com.example.app_usage_limit
 
-import android.content.SharedPreferences
-import android.os.Bundle
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.content.Context
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import com.example.app_usage_limit.util.AppLimitInfo
+import com.example.app_usage_limit.util.AppLimitStorage
+import com.example.app_usage_limit.util.LimitType
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+object CharMain {
+    val level = mutableIntStateOf(1)
+    val exp = mutableLongStateOf(0L)
+    val isLimitMode = mutableStateOf(false)
+    val dailyHour = mutableIntStateOf(4)
 
-    private lateinit var prefs: SharedPreferences
-    private lateinit var progressBar: ProgressBar
-    private lateinit var levelText: TextView
-    private lateinit var characterImage: ImageView
-    private lateinit var btnLimitMode: Button
-
-    private var level = 1
-    private var exp = 0L
-    private var dailyHour = 4
-
-    private var isLimitMode = false
     private var limitStartTime = 0L
+    private const val TARGET_PACKAGE = "com.example.targetapp"
+    private var monitoringJob: Job? = null
+    private val monitoringScope = CoroutineScope(Dispatchers.Main)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main_basic)
-
-        // UI 요소 초기화
-        progressBar = findViewById(R.id.expBar)
-        levelText = findViewById(R.id.levelText)
-        characterImage = findViewById(R.id.characterImage)
-        btnLimitMode = findViewById(R.id.button1)
-
-        // SharedPreferences 로드
-        prefs = getSharedPreferences("growth", MODE_PRIVATE)
-        level = prefs.getInt("level", 1)
-        exp = prefs.getLong("exp", 0L)
-        dailyHour = prefs.getInt("dailyHour", 4)
-
-        updateUI()
-
-        // 하루 목표 시간 표시 버튼
-        findViewById<Button>(R.id.button2).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setMessage("하루 목표 사용 시간: $dailyHour 시간")
-                .setPositiveButton("확인", null)
-                .show()
-        }
-
-        // 제한 모드 버튼
-        btnLimitMode.setOnClickListener {
-            if (!isLimitMode) startLimitMode() else stopLimitMode()
+    fun startMonitoring(context: Context) {
+        if (monitoringJob?.isActive == true) return
+        monitoringJob = monitoringScope.launch {
+            while (true) {
+                AppLimitStorage.autoUpdateExpiredBlocks(context) // 제한 상태 최신화
+                updateLimitModeByBlockedState(context)
+                delay(1000L)
+            }
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        if (isLimitMode) {
-            stopLimitMode()  // 백그라운드로 갈 때 자동 종료
+    fun stopMonitoring() {
+        monitoringJob?.cancel()
+        monitoringJob = null
+    }
+
+    fun initialize(context: Context) {
+        val prefs = context.getSharedPreferences("growth", Context.MODE_PRIVATE)
+        level.value = prefs.getInt("level", 1)
+        exp.value = prefs.getLong("exp", 0L)
+        dailyHour.value = prefs.getInt("dailyHour", 4)
+
+        // 지난 제한 기록 불러와서 경험치 반영
+        val info = AppLimitStorage.getLimitInfo(context, TARGET_PACKAGE)
+        info?.let {
+            val end = if (it.endTimeMillis > 0) it.endTimeMillis else System.currentTimeMillis()
+            val duration = end - it.startTimeMillis
+            if (duration > 0) {
+                accumulateXP(duration, context)
+                Toast.makeText(context, "지난 세션 ${duration / 60000}분 적립", Toast.LENGTH_SHORT).show()
+                AppLimitStorage.clearLimitInfo(context, TARGET_PACKAGE)
+            }
         }
     }
 
-    private fun startLimitMode() {
-        isLimitMode = true
+    fun startLimitMode(context: Context) {
+        if (isLimitMode.value) return
+        isLimitMode.value = true
         limitStartTime = System.currentTimeMillis()
-        btnLimitMode.text = "제한 모드 종료"
-        Toast.makeText(this, "제한 모드를 시작합니다.", Toast.LENGTH_SHORT).show()
+
+        AppLimitStorage.saveLimitInfo(
+            context,
+            packageName = TARGET_PACKAGE,
+            limitTimeMinutes = dailyHour.value * 60,
+            startTimeMillis = limitStartTime,
+            endTimeMillis = 0L,
+            isBlocked = true,
+            limitType = LimitType.TIME_LIMIT
+        )
+        AppLimitStorage.setTimeLimit(context, TARGET_PACKAGE, dailyHour.value * 60)
     }
 
-    private fun stopLimitMode() {
-        if (!isLimitMode) return
+    fun stopLimitMode(context: Context) {
+        if (!isLimitMode.value) return
+        isLimitMode.value = false
 
         val duration = System.currentTimeMillis() - limitStartTime
-        accumulateXP(duration)
-        isLimitMode = false
-        btnLimitMode.text = "제한 모드 시작"
-        Toast.makeText(this, "제한 모드를 종료했습니다.", Toast.LENGTH_SHORT).show()
+        accumulateXP(duration, context)
+
+        AppLimitStorage.saveLimitInfo(
+            context,
+            packageName = TARGET_PACKAGE,
+            limitTimeMinutes = dailyHour.value * 60,
+            startTimeMillis = limitStartTime,
+            endTimeMillis = System.currentTimeMillis(),
+            isBlocked = false,
+            limitType = LimitType.TIME_LIMIT
+        )
+        AppLimitStorage.updateLimitBlockedStatus(context, TARGET_PACKAGE, false)
     }
 
-    private fun accumulateXP(ms: Long) {
-        // 기본 목표 시간(밀리초)
-        val base = dailyHour * 0.5 * 3600 * 1000
-        // 다음 레벨까지 필요한 XP
-        val threshold = base * (1 + 0.05 * (level / 10.0))
+    fun setDailyHour(context: Context, hours: Int) {
+        dailyHour.value = hours
+        context.getSharedPreferences("growth", Context.MODE_PRIVATE)
+            .edit()
+            .putInt("dailyHour", hours)
+            .apply()
+        // 제한 정보도 업데이트
+        AppLimitStorage.setTimeLimit(context, TARGET_PACKAGE, hours * 60)
+    }
 
-        exp += ms
-        if (exp >= threshold) {
-            level++
-            exp -= threshold.toLong()
+    fun showAlarmDialog(context: Context) {
+        Toast.makeText(context, "시간 설정 UI는 별도 구현 필요", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun accumulateXP(ms: Long, context: Context) {
+        val prefs = context.getSharedPreferences("growth", Context.MODE_PRIVATE)
+        val base = dailyHour.value * 0.5 * 3600 * 1000
+        val threshold = base * (1 + 0.05 * (level.value / 10.0))
+        val totalExp = exp.value + ms
+
+        if (totalExp >= threshold) {
+            level.value += 1
+            exp.value = (totalExp - threshold).toLong()
+            Toast.makeText(context, "레벨업! 현재 레벨: ${level.value}", Toast.LENGTH_SHORT).show()
+        } else {
+            exp.value = totalExp
         }
 
         prefs.edit()
-            .putInt("level", level)
-            .putLong("exp", exp)
+            .putInt("level", level.value)
+            .putLong("exp", exp.value)
             .apply()
-
-        updateUI()
     }
 
-    private fun updateUI() {
-        val base = dailyHour * 0.5 * 3600 * 1000
-        val threshold = base * (1 + 0.05 * (level / 10.0))
-        val percent = (exp * 100 / threshold).toInt().coerceAtMost(100)
-
-        progressBar.progress = percent
-        levelText.text = "레벨: $level"
-
-        val imgIndex = ((level - 1) / 10).coerceAtMost(3)
-        val resId = resources.getIdentifier("char${imgIndex + 1}", "drawable", packageName)
-        characterImage.setImageResource(resId)
+    private fun updateLimitModeByBlockedState(context: Context) {
+        val info = AppLimitStorage.getLimitInfo(context, TARGET_PACKAGE)
+        if (info?.isBlocked == true && !isLimitMode.value) {
+            startLimitMode(context)
+        } else if (info?.isBlocked == false && isLimitMode.value) {
+            stopLimitMode(context)
+        }
     }
+}
