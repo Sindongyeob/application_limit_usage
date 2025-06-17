@@ -3,7 +3,20 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_image">
+
+    <TextView
+            android:id="@+id/toptitle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:paddingStart="16dp"
+            android:text="AUL (App Usage Limit)"
+            android:textSize="24sp"
+            android:textColor="@color/black" />
 
     <View
             android:layout_width="match_parent"
@@ -12,12 +25,12 @@
 
     <ImageView
             android:id="@+id/characterImage"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="256dp"
+            android:layout_height="256dp"
             android:layout_gravity="center"
-            android:contentDescription="캐릭터 이미지" />
+            android:contentDescription="character"
+            android:src="@drawable/char1" />
 
-    <!-- 레벨 텍스트뷰 추가 -->
     <TextView
             android:id="@+id/levelText"
             android:layout_width="wrap_content"
@@ -25,7 +38,10 @@
             android:layout_gravity="center_horizontal"
             android:text="레벨: 1"
             android:textSize="18sp"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/black" />
 
     <ProgressBar
             android:id="@+id/expBar"
@@ -36,7 +52,9 @@
             android:layout_marginEnd="32dp"
             android:layout_marginTop="8dp"
             android:progress="0"
-            android:max="100" />
+            android:max="100"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/rounded_button" />
 
     <View
             android:layout_width="match_parent"
@@ -46,32 +64,53 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
+            android:layout_marginBottom="0dp"
             android:gravity="center"
-            android:layout_marginBottom="64dp">
+            android:orientation="horizontal"
+            android:padding="16dp">
 
         <Button
                 android:id="@+id/button1"
                 android:layout_width="0dp"
                 android:layout_height="126dp"
                 android:layout_weight="1"
-                android:text="어플리케이션 제한 설정" />
+                android:paddingHorizontal="8dp"
+                android:textSize="20sp"
+                android:background="@drawable/rounded_button"
+                android:text="어플\n제한"
+                android:drawableStart="@drawable/icon_b1"
+                android:textColor="@color/black" />
 
         <Button
                 android:id="@+id/button2"
                 android:layout_width="0dp"
                 android:layout_height="126dp"
-                android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="하루 사용 시간 설정" />
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:textSize="20sp"
+                android:background="@drawable/rounded_button"
+                android:text="하루 사용 시간"
+                android:drawableStart="@drawable/icon_b2"
+                android:textColor="@color/black" />
 
         <Button
                 android:id="@+id/button3"
                 android:layout_width="0dp"
                 android:layout_height="126dp"
-                android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="폰 사용 시간" />
+                android:layout_weight="1"
+                android:paddingHorizontal="8dp"
+                android:textSize="20sp"
+                android:background="@drawable/rounded_button"
+                android:text="폰 사용 시간\n확인"
+                android:drawableStart="@drawable/icon_b3"
+                android:textColor="@color/black" />
+
     </LinearLayout>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.4" />
 </LinearLayout>

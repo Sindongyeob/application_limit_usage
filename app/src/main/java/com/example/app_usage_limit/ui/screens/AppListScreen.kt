@@ -2,6 +2,7 @@ package com.example.app_usage_limit.ui.screens
 
 import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -46,53 +47,71 @@ fun AppListScreen(
     }
 
     Scaffold(
+        containerColor = Color.White, // 배경색 흰색
         topBar = {
-            TopAppBar(title = { Text("앱 사용 제한 목록") })
+            TopAppBar(
+                title = { Text("앱 사용 제한 목록", color = Color.Black) }, // 글자색 검정
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White // TopAppBar 배경색 흰색
+                )
+            )
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .background(Color.White) // Column 배경색 흰색
                 .padding(16.dp)
         ) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("앱 검색") },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("앱 검색", color = Color.Black) }, // 라벨 색상 검정
+                modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Black,
+                    focusedLabelColor = Color.Black,
+                    unfocusedLabelColor = Color.Black
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White) // LazyColumn 배경색 흰색
+            ) {
                 if (blockedApps.isNotEmpty()) {
-                    item { SectionHeader("차단된 앱", color = Color.Red) }
+                    item { SectionHeader("차단된 앱", color = Color.Black) } // 글자색 검정
                     items(blockedApps) { app ->
-                        AppRow(app, context, Color.Red) {
+                        AppRow(app, context, Color.Black) { // textColor 검정
                             onBlockedAppClick(app.packageName)
                         }
                     }
                 }
 
                 if (limitedApps.isNotEmpty()) {
-                    item { SectionHeader("제한된 앱") }
+                    item { SectionHeader("제한된 앱", color = Color.Black) } // 글자색 검정
                     items(limitedApps) { app ->
                         val remaining = usageManager.getRemainingTime(context, app.packageName)
                         val minutes = remaining / 60000
                         val seconds = (remaining % 60000) / 1000
                         val timeLeft = String.format("%d:%02d 남음", minutes, seconds)
-                        AppRow(app, context, Color.Black, timeLeft) {
+                        AppRow(app, context, Color.Black, timeLeft) { // textColor 검정
                             onAppSelect(app.packageName)
                         }
                     }
                 }
 
                 if (normalApps.isNotEmpty()) {
-                    item { SectionHeader("일반 앱") }
+                    item { SectionHeader("일반 앱", color = Color.Black) } // 글자색 검정
                     items(normalApps) { app ->
-                        AppRow(app, context, Color.Black) {
+                        AppRow(app, context, Color.Black) { // textColor 검정
                             onAppSelect(app.packageName)
                         }
                     }
@@ -152,7 +171,7 @@ fun AppRow(
         Column {
             Text(appName, color = textColor, fontSize = 16.sp)
             subText?.let {
-                Text(it, fontSize = 12.sp, color = Color.Gray)
+                Text(it, fontSize = 12.sp, color = Color.Black) // subText 색상 검정
             }
         }
     }
