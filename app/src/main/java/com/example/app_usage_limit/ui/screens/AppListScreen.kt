@@ -99,10 +99,7 @@ fun AppListScreen(
                     item { SectionHeader("제한된 앱", color = Color.Black) } // 글자색 검정
                     items(limitedApps) { app ->
                         val remaining = usageManager.getRemainingTime(context, app.packageName)
-                        val minutes = remaining / 60000
-                        val seconds = (remaining % 60000) / 1000
-                        val timeLeft = String.format("%d:%02d 남음", minutes, seconds)
-                        AppRow(app, context, Color.Black, timeLeft) { // textColor 검정
+                        AppRow(app, context, Color.Black) { // textColor 검정
                             onAppSelect(app.packageName)
                         }
                     }
