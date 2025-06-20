@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_gravity="center"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="환기 시간 설정"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/inputMinutes"
+            android:inputType="number"
+            android:hint="00"
+            android:gravity="center"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="분"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"/>
+
+        <EditText
+            android:id="@+id/inputSeconds"
+            android:inputType="number"
+            android:hint="00"
+            android:gravity="center"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="초"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/startTimerButton"
+        android:text="타이머 시작"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="200dp"/>
+
+</LinearLayout>

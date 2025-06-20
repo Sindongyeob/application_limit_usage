@@ -6,6 +6,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.*
 import com.example.app_usage_limit.BuildConfig
+import android.content.Intent
+
 
 @Composable
 fun AppNavigator() {
@@ -33,10 +35,11 @@ fun AppNavigator() {
             )
         }
 
+
         composable("home") {
             HomeScreen(
                 onAppRestrictionClick = { navController.navigate("applist") },
-                onAlarmSettingClick = { /* 환기 알람 설정 화면으로 이동 */ }
+                onAlarmSettingClick = {  navController.navigate("timer") }
             )
         }
 
@@ -105,6 +108,13 @@ fun AppNavigator() {
                         // optional unlock logic
                     }
                 )
+            }
+        }
+        // 타이머 액티비티 호출용 경로 추가
+        composable("timer") {
+            LaunchedEffect(Unit) {
+                val intent = Intent(context, com.example.app_usage_limit.TimerMainActivity::class.java)
+                context.startActivity(intent)
             }
         }
     }
