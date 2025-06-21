@@ -18,6 +18,7 @@ object AppUsageManager {
             limitTimeMinutes = limitMinutes,
             limitType = LimitType.TIME_LIMIT
         )
+        Log.d("AppUsageManager", "제한 설정: $packageName, $limitMinutes 분")
     }
 
     // 실행 횟수 관련
@@ -30,6 +31,7 @@ object AppUsageManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val count = getLaunchCount(context, packageName)
         prefs.edit { putInt(KEY_LAUNCH_COUNT_PREFIX + packageName, count + 1) }
+        Log.d("AppUsageManager", "실행 횟수 증가: $packageName, 현재: ${count + 1}")
     }
 
     fun resetLaunchCount(context: Context, packageName: String) {
@@ -43,6 +45,7 @@ object AppUsageManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val current = prefs.getLong(KEY_USAGE_TIME_PREFIX + packageName, 0L)
         prefs.edit { putLong(KEY_USAGE_TIME_PREFIX + packageName, current + millis) }
+        Log.d("AppUsageManager", "사용 시간 추가: $packageName, $millis ms")
     }
 
     fun getUsageTime(context: Context, packageName: String): Long {
@@ -84,26 +87,30 @@ object AppUsageManager {
         return time
     }
 
-    // ✅ 제한 해제 시 한 번에 초기화할 수 있는 함수
+    // 제한 해제 시 모든 관련 데이터 초기화
     fun resetLimits(context: Context, packageName: String) {
         resetUsageTime(context, packageName)
         resetLaunchCount(context, packageName)
+        AppLimitStorage.removeLimitInfo(context, packageName)
         Log.d("AppUsageManager", "모든 제한 정보 초기화 완료: $packageName")
     }
 
     fun getLimitForApp(context: Context, packageName: String): Int {
         return AppLimitStorage.getLimitInfo(context, packageName)?.limitTimeMinutes ?: 0
     }
+
     fun getRemainingTime(context: Context, packageName: String): Int {
         val limitMinutes = getLimitForApp(context, packageName)
         val usedMillis = getUsedTimeToday(context, packageName)
         val remainingMillis = limitMinutes * 60 * 1000L - usedMillis
         return (remainingMillis / 1000 / 60).toInt().coerceAtLeast(0)
     }
+
     fun isAppBlocked(context: Context, packageName: String): Boolean {
         val limitMinutes = getLimitForApp(context, packageName)
         val usedMillis = getUsedTimeToday(context, packageName)
-        return limitMinutes > 0 && usedMillis >= limitMinutes * 60 * 1000L
+        val isBlocked = limitMinutes > 0 && usedMillis >= limitMinutes * 60 * 1000L
+        Log.d("AppUsageManager", "[$packageName] 차단 상태: $isBlocked (제한: $limitMinutes 분, 사용: ${usedMillis / 1000 / 60} 분)")
+        return isBlocked
     }
-
 }

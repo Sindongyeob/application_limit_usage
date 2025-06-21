@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.example.app_usage_limit.R
 import com.example.app_usage_limit.util.AppUsageManager
 import androidx.core.graphics.createBitmap
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,12 +33,20 @@ fun AppListScreen(
 ) {
     val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
+    var apps by remember { mutableStateOf(appList) } // 앱 목록을 상태로 관리
     val usageManager = AppUsageManager
 
-    val filteredApps = appList.filter {
+    // 앱 목록 갱신 함수
+    fun refreshAppList() {
+        apps = context.packageManager.getInstalledApplications(0)
+    }
+
+    // 검색된 앱 목록
+    val filteredApps = apps.filter {
         context.packageManager.getApplicationLabel(it).toString().contains(searchQuery, ignoreCase = true)
     }
 
+    // 앱 분류
     val (blockedApps, limitedApps, normalApps) = remember(filteredApps) {
         val now = System.currentTimeMillis()
         filteredApps.partition { usageManager.isAppBlocked(context, it.packageName) }.let { (blocked, rest) ->
@@ -47,12 +56,12 @@ fun AppListScreen(
     }
 
     Scaffold(
-        containerColor = Color.White, // 배경색 흰색
+        containerColor = Color.White,
         topBar = {
             TopAppBar(
-                title = { Text("앱 사용 제한 목록", color = Color.Black) }, // 글자색 검정
+                title = { Text("앱 사용 제한 목록", color = Color.Black) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White // TopAppBar 배경색 흰색
+                    containerColor = Color.White
                 )
             )
         }
@@ -61,13 +70,13 @@ fun AppListScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(Color.White) // Column 배경색 흰색
+                .background(Color.White)
                 .padding(16.dp)
         ) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = { Text("앱 검색", color = Color.Black) }, // 라벨 색상 검정
+                label = { Text("앱 검색", color = Color.Black) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.Black,
@@ -84,31 +93,34 @@ fun AppListScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White) // LazyColumn 배경색 흰색
+                    .background(Color.White)
             ) {
                 if (blockedApps.isNotEmpty()) {
-                    item { SectionHeader("차단된 앱", color = Color.Black) } // 글자색 검정
+                    item { SectionHeader("차단된 앱", color = Color.Black) }
                     items(blockedApps) { app ->
-                        AppRow(app, context, Color.Black) { // textColor 검정
-                            onBlockedAppClick(app.packageName)
+                        AppRow(app, context, Color.Black) {
+                            usageManager.resetLimits(context, app.packageName)
+                            Toast.makeText(context, "${app.loadLabel(context.packageManager)} 제한 해제됨", Toast.LENGTH_SHORT).show()
+                            refreshAppList() // 목록 갱신
                         }
                     }
                 }
 
                 if (limitedApps.isNotEmpty()) {
-                    item { SectionHeader("제한된 앱", color = Color.Black) } // 글자색 검정
+                    item { SectionHeader("제한된 앱", color = Color.Black) }
                     items(limitedApps) { app ->
-                        val remaining = usageManager.getRemainingTime(context, app.packageName)
-                        AppRow(app, context, Color.Black) { // textColor 검정
-                            onAppSelect(app.packageName)
+                        AppRow(app, context, Color.Black) {
+                            usageManager.resetLimits(context, app.packageName)
+                            Toast.makeText(context, "${app.loadLabel(context.packageManager)} 제한 해제됨", Toast.LENGTH_SHORT).show()
+                            refreshAppList() // 목록 갱신
                         }
                     }
                 }
 
                 if (normalApps.isNotEmpty()) {
-                    item { SectionHeader("일반 앱", color = Color.Black) } // 글자색 검정
+                    item { SectionHeader("일반 앱", color = Color.Black) }
                     items(normalApps) { app ->
-                        AppRow(app, context, Color.Black) { // textColor 검정
+                        AppRow(app, context, Color.Black) {
                             onAppSelect(app.packageName)
                         }
                     }
@@ -168,7 +180,7 @@ fun AppRow(
         Column {
             Text(appName, color = textColor, fontSize = 16.sp)
             subText?.let {
-                Text(it, fontSize = 12.sp, color = Color.Black) // subText 색상 검정
+                Text(it, fontSize = 12.sp, color = Color.Black)
             }
         }
     }
