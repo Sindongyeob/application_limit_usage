@@ -14,8 +14,6 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-    <uses-permission android:name="android:project_media" />
 
 
     <application
@@ -62,8 +60,7 @@
 
         <service
             android:name=".TimerService"
-            android:exported="false"
-            android:foregroundServiceType="mediaProjection"/>
+            android:exported="false"/>
 
         <service
                 android:name=".service.AppBlockAccessibilityService"
