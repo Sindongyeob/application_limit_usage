@@ -43,14 +43,6 @@ object OverlayUtil {
 
         wm.addView(overlayView, params)
 
-        // 10초 후 자동 제거 (원하면 제거 코드 삭제)
-        /*overlayView.postDelayed({
-            try {
-                wm.removeView(overlayView)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }, 10000)*/
 
         //확인 누르면 제거
         val confirmButton = overlayView.findViewById<Button>(R.id.confirm_button)

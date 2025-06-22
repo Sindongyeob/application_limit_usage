@@ -125,27 +125,6 @@ object CharMain {
         AppLimitStorage.setTimeLimit(context, TARGET_PACKAGE, hours.toInt() * 60)
     }
 
-//    fun showAlarmDialog(context: Context) {
-//        val calendar = Calendar.getInstance()
-//        val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
-//        val currentMinute = calendar.get(Calendar.MINUTE)
-//
-//        TimePickerDialog(
-//            context,
-//            { _, hourOfDay, minute ->
-//                dailyHour.value = (hourOfDay + minute / 60.0).toFloat()
-//                Toast.makeText(
-//                    context,
-//                    "하루 사용 시간: ${hourOfDay}시간 ${minute}분 으로 설정되었습니다.",
-//                    Toast.LENGTH_SHORT
-//                ).show()
-//            },
-//            currentHour,
-//            currentMinute,
-//            true
-//        ).show()
-//    }
-
     fun showAlarmDialog(context: Context) {
         val calendar = Calendar.getInstance()
         val currentHour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -177,28 +156,6 @@ object CharMain {
             true
         ).show()
     }
-
-
-//    fun accumulateXP(context: Context, ms: Long) {
-//        val wakeMinutes = wakeHour * 60 + wakeMinute
-//        val usableMinutes = (1440 - wakeMinutes).coerceAtLeast(0)
-//        base = usableMinutes * 60 * 0.5
-//        threshold = base * (1 + 0.05 * (level.value / 10.0))
-////        val base = dailyHour.value * 0.5 * 3600 // 초 단위
-////        val threshold = base * (1 + 0.05 * (level.value / 10.0))
-//        val expGain = ms.toDouble() / 1000.0
-//        val totalExp = exp.value + expGain
-//
-//        if (totalExp >= threshold) {
-//            level.value += 1
-//            exp.value = (totalExp - threshold).toLong()
-//            Toast.makeText(context, "레벨업! 현재 레벨: ${level.value}", Toast.LENGTH_SHORT).show()
-//        } else {
-//            exp.value = totalExp.toLong()
-//        }
-//
-//        saveStats(context)
-//    }
 
     fun accumulateXP(context: Context, ms: Long) {
         val wakeMinutes = wakeHour * 60 + wakeMinute
