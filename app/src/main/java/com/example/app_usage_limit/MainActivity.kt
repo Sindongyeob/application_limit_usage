@@ -12,6 +12,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AppUsageLimitTheme {
+                CharMain.loadStats(this@MainActivity) // 저장된 레벨과 경험치 불러오기
                 AppNavigator()
             }
         }

@@ -1,14 +1,14 @@
 package com.example.app_usage_limit.ui.screens
 
-import android.app.AppOpsManager
+import android.app.usage.UsageStatsManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
-import android.view.accessibility.AccessibilityManager
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,7 +25,7 @@ fun AccessibilityPermissionScreen(
 ) {
     val context = LocalContext.current
     var alreadyNavigated by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope() // ✅ CoroutineScope 기억
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -57,12 +57,10 @@ fun AccessibilityPermissionScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            // 접근성 권한 화면 열기
             context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             })
 
-            // ✅ CoroutineScope를 사용해 딜레이 후 앱 사용 접근 권한 화면 열기
             coroutineScope.launch {
                 delay(1000)
                 context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
@@ -74,7 +72,6 @@ fun AccessibilityPermissionScreen(
         }
     }
 }
-
 
 fun isAccessibilityServiceEnabled(context: Context): Boolean {
     val expectedComponentName = ComponentName(context, AppBlockAccessibilityService::class.java).flattenToString()
@@ -91,11 +88,11 @@ fun isAccessibilityServiceEnabled(context: Context): Boolean {
 }
 
 fun isUsageAccessGranted(context: Context): Boolean {
-    val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-    val mode = appOps.checkOpNoThrow(
-        AppOpsManager.OPSTR_GET_USAGE_STATS,
-        Process.myUid(),
-        context.packageName
-    )
-    return mode == AppOpsManager.MODE_ALLOWED
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val currentTime = System.currentTimeMillis()
+        val usageEvents = usageStatsManager.queryEvents(currentTime - 60_000, currentTime)
+        return usageEvents.hasNextEvent()
+    }
+    return false
 }

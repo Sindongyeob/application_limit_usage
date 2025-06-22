@@ -4,12 +4,14 @@ import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.util.Log
 import androidx.core.content.edit
+import com.example.app_usage_limit.CharMain
 import java.util.*
 
 object AppUsageManager {
     private const val PREFS_NAME = "app_usage_prefs"
     private const val KEY_USAGE_TIME_PREFIX = "usage_time_"
     private const val KEY_LAUNCH_COUNT_PREFIX = "launch_count_"
+    private const val TARGET_PACKAGE = "com.example.target_app" // Constants.TARGET_PACKAGE 대체
 
     fun setLimitForApp(context: Context, packageName: String, limitMinutes: Int) {
         AppLimitStorage.saveLimitInfo(
@@ -21,7 +23,6 @@ object AppUsageManager {
         Log.d("AppUsageManager", "제한 설정: $packageName, $limitMinutes 분")
     }
 
-    // 실행 횟수 관련
     fun getLaunchCount(context: Context, packageName: String): Int {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getInt(KEY_LAUNCH_COUNT_PREFIX + packageName, 0)
@@ -40,13 +41,21 @@ object AppUsageManager {
         Log.d("AppUsageManager", "실행 횟수 초기화: $packageName")
     }
 
-    // 사용 시간 관련
     fun addUsageTime(context: Context, packageName: String, millis: Long) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val current = prefs.getLong(KEY_USAGE_TIME_PREFIX + packageName, 0L)
-        prefs.edit { putLong(KEY_USAGE_TIME_PREFIX + packageName, current + millis) }
+        val newTotal = current + millis
+        prefs.edit { putLong(KEY_USAGE_TIME_PREFIX + packageName, newTotal) }
         Log.d("AppUsageManager", "사용 시간 추가: $packageName, $millis ms")
+
+        val limitInfo = AppLimitStorage.getLimitInfo(context, packageName)
+        if (limitInfo != null && limitInfo.limitTimeMinutes > 0 && !limitInfo.isBlocked) {
+            // 제한이 있고, 차단된 상태가 아니면 XP 누적 실행
+            CharMain.accumulateXP(context, millis)
+        }
     }
+
+
 
     fun getUsageTime(context: Context, packageName: String): Long {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -87,7 +96,6 @@ object AppUsageManager {
         return time
     }
 
-    // 제한 해제 시 모든 관련 데이터 초기화
     fun resetLimits(context: Context, packageName: String) {
         resetUsageTime(context, packageName)
         resetLaunchCount(context, packageName)
@@ -113,4 +121,6 @@ object AppUsageManager {
         Log.d("AppUsageManager", "[$packageName] 차단 상태: $isBlocked (제한: $limitMinutes 분, 사용: ${usedMillis / 1000 / 60} 분)")
         return isBlocked
     }
+
+
 }

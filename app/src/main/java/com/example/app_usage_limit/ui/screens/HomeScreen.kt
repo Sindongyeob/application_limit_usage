@@ -3,6 +3,7 @@ package com.example.app_usage_limit.ui.screens
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,30 +23,44 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import com.example.app_usage_limit.CharMain
 import com.example.app_usage_limit.R
+import com.example.app_usage_limit.util.AppLimitStorage
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableLongStateOf
+import kotlin.ranges.coerceIn
+import kotlin.text.toDouble
+import kotlin.text.toFloat
 
 @Composable
 fun HomeScreen(
     onAppRestrictionClick: () -> Unit,
     onAlarmSettingClick: () -> Unit,
-    context: Context = LocalContext.current
 ) {
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         CharMain.initialize(context)
     }
 
     val level = CharMain.level.value
     val exp = CharMain.exp.value
-    val dailyHour = CharMain.dailyHour.value.coerceAtLeast(1)
-    val base = dailyHour * 0.5 * 3600 * 1000
-    val threshold = base * (1 + 0.05 * (level / 10.0))
-    val progress = if (threshold > 0) (exp / threshold).toFloat().coerceIn(0f, 1f) else 0f
+    val dailyHour = CharMain.dailyHour
+    val base = CharMain.base
+    val threshold = CharMain.threshold
+
+    val progress =
+        if (threshold > 0) (exp.toDouble() / threshold).toFloat().coerceIn(0f, 1f) else 0f
 
     val characterRes = when {
         level < 5 -> R.drawable.char1
         level < 10 -> R.drawable.char2
         level < 15 -> R.drawable.char3
         else -> R.drawable.char4
+    }
+
+    val accumulatedUsage = remember { mutableLongStateOf(0L) }
+    LaunchedEffect(Unit) {
+        accumulatedUsage.longValue =
+            AppLimitStorage.getAccumulatedUsage(context, "com.example.targetapp")
     }
 
     Box(
@@ -59,6 +74,27 @@ fun HomeScreen(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )
+
+        // 초기화 버튼을 우상단에 배치
+        Surface(
+            modifier = Modifier
+                .align(Alignment.TopEnd) // 우상단 정렬
+                .padding(top = 16.dp, end = 16.dp)
+                .size(80.dp, 40.dp) // 버튼 크기 작게 설정
+                .clickable { CharMain.resetStats(context) },
+            shape = RoundedCornerShape(8.dp),
+            color = Color.Gray // 배경색 추가로 텍스트 가시성 확보
+        ) {
+            Box(
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "초기화",
+                    color = Color.White, // 텍스트 색상 유지
+                    fontSize = 14.sp // 작은 버튼에 맞게 텍스트 크기 조정
+                )
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -97,7 +133,7 @@ fun HomeScreen(
             )
 
             LinearProgressIndicator(
-                progress = { progress },
+                progress = progress,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(20.dp)
@@ -205,7 +241,7 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(0.4f))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

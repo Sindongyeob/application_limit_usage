@@ -1,3 +1,4 @@
+
 package com.example.app_usage_limit.ui.screens
 
 import android.content.pm.PackageManager
@@ -15,8 +16,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.app_usage_limit.util.AppUsageManager
 import androidx.core.graphics.drawable.toBitmap
-
-
+import com.example.app_usage_limit.CharMain
 
 @Composable
 fun SetLimitScreen(
@@ -78,6 +78,14 @@ fun SetLimitScreen(
                 val limit = timeLimitText.toIntOrNull()
                 if (limit != null && limit > 0) {
                     AppUsageManager.setLimitForApp(context, packageName, limit)
+
+                    // CharMain 경험치 시스템 연동
+                    val hourFloat = limit / 60f
+                    //val hourInt = hourFloat.toInt()
+                    CharMain.setDailyHour(context, hourFloat)
+                    CharMain.startLimitMode(context)
+                    CharMain.startMonitoring(context)
+
                     onLimitSet()
                 } else {
                     showError = true

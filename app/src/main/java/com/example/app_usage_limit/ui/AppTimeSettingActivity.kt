@@ -88,7 +88,7 @@ class AppTimeSettingActivity : AppCompatActivity() {
             AppLimitStorage.saveLimitInfo(
                 context = this,
                 packageName = packageName!!,
-                limitTimeMinutes = timeLimit ?: -1,
+                limitTimeMinutes = timeLimit?.toInt() ?: -1,
                 endTimeMillis = selectedEndTimeMillis,
                 limitType = limitType
             )

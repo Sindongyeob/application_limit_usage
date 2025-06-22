@@ -12,6 +12,7 @@ object AppLimitStorage {
     private const val KEY_TIME_LIMIT = "time_limit_"
     private const val UNLOCKED_SUFFIX = "_unlocked"
 
+    // 이미 주신 함수들 유지
     fun isUnlocked(context: Context, packageName: String): Boolean {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         return prefs.getBoolean(packageName + UNLOCKED_SUFFIX, false)
@@ -136,10 +137,14 @@ object AppLimitStorage {
         }
     }
 
+    // 기존에 주신 시간 제한 저장 및 조회 함수 유지
     fun setTimeLimit(context: Context, packageName: String, minutes: Int) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         prefs.edit { putInt(KEY_TIME_LIMIT + packageName, minutes) }
+        // 저장과 동시에 LimitInfo에 반영 (동기화)
+        saveLimitInfo(context, packageName, limitTimeMinutes = minutes)
     }
+
     fun getTimeLimit(context: Context, packageName: String): Int {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         return prefs.getInt(KEY_TIME_LIMIT + packageName, 0)
@@ -162,6 +167,32 @@ object AppLimitStorage {
             remove(KEY_TIME_LIMIT + packageName)
             remove(KEY_LAUNCH_LIMIT + packageName)
             remove(packageName + UNLOCKED_SUFFIX)
+            remove("usage_$packageName") // 누적 사용시간도 제거
         }
+    }
+
+    // 누적 사용 시간 저장 및 조회 함수 (주신 부분 유지)
+    fun accumulateUsage(context: Context, packageName: String, usageMillis: Long) {
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val prev = prefs.getLong("usage_$packageName", 0L)
+        prefs.edit { putLong("usage_$packageName", prev + usageMillis) }
+    }
+
+    fun getAccumulatedUsage(context: Context, packageName: String): Long {
+        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        return prefs.getLong("usage_$packageName", 0L)
+    }
+
+    // 추가: 동적 제한 체크 및 차단 처리 함수
+    fun checkAndBlockIfLimitExceeded(context: Context, packageName: String): Boolean {
+        val limitInfo = getLimitInfo(context, packageName) ?: return false
+        if (limitInfo.limitTimeMinutes <= 0) return false
+
+        val usedMillis = getAccumulatedUsage(context, packageName)
+        val limitMillis = limitInfo.limitTimeMinutes * 60L * 1000L
+
+        val isBlocked = usedMillis >= limitMillis
+        updateLimitBlockedStatus(context, packageName, isBlocked)
+        return isBlocked
     }
 }

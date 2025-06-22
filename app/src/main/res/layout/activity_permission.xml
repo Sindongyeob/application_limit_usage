@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="24dp"
-    android:orientation="vertical">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="앱 사용 제한을 위해 접근성 권한이 필요합니다."
-        android:textSize="18sp" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="앱 사용 제한을 위해 접근성 권한이 필요합니다."
+            android:textSize="18sp" />
 
     <Button
-        android:id="@+id/btn_accessibility"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="접근성 권한 설정하기"
-        android:layout_marginTop="24dp" />
+            android:id="@+id/btn_accessibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="접근성 권한 설정하기"
+            android:layout_marginTop="24dp" />
 
     <Button
-        android:id="@+id/btn_next"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="다음으로"
-        android:layout_marginTop="12dp" />
+            android:id="@+id/btn_next"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="다음으로"
+            android:layout_marginTop="12dp" />
 
 </LinearLayout>
