@@ -21,12 +21,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
-import com.example.app_usage_limit.CharMain
-import com.example.app_usage_limit.R
-import com.example.app_usage_limit.util.AppLimitStorage
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableLongStateOf
+import com.example.app_usage_limit.CharMain
+import com.example.app_usage_limit.R
+import com.example.app_usage_limit.util.AppLimitStorage
 import kotlin.ranges.coerceIn
 import kotlin.text.toDouble
 import kotlin.text.toFloat
@@ -75,24 +75,47 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // 초기화 버튼을 우상단에 배치
-        Surface(
+        // 초기화 버튼과 5레벨업 버튼을 우상단에 세로로 배치
+        Column(
             modifier = Modifier
-                .align(Alignment.TopEnd) // 우상단 정렬
-                .padding(top = 16.dp, end = 16.dp)
-                .size(80.dp, 40.dp) // 버튼 크기 작게 설정
-                .clickable { CharMain.resetStats(context) },
-            shape = RoundedCornerShape(8.dp),
-            color = Color.Gray // 배경색 추가로 텍스트 가시성 확보
+                .align(Alignment.TopEnd)
+                .padding(top = 16.dp, end = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box(
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier
+                    .size(80.dp, 40.dp)
+                    .clickable { CharMain.resetStats(context) },
+                shape = RoundedCornerShape(8.dp),
+                color = Color.Gray
             ) {
-                Text(
-                    text = "초기화",
-                    color = Color.White, // 텍스트 색상 유지
-                    fontSize = 14.sp // 작은 버튼에 맞게 텍스트 크기 조정
-                )
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "초기화",
+                        color = Color.White,
+                        fontSize = 14.sp
+                    )
+                }
+            }
+
+            Surface(
+                modifier = Modifier
+                    .size(80.dp, 40.dp)
+                    .clickable { CharMain.levelUpByFive(context) },
+                shape = RoundedCornerShape(8.dp),
+                color = Color.Gray
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "5레벨업",
+                        color = Color.White,
+                        fontSize = 14.sp
+                    )
+                }
             }
         }
 
@@ -145,7 +168,8 @@ fun HomeScreen(
             Text(
                 text = "EXP: ${(exp / 1000).toInt()} / ${(threshold / 1000).toInt()}",
                 fontSize = 16.sp,
-                color = Color.Black
+                color = Color.Black,
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.weight(1f))

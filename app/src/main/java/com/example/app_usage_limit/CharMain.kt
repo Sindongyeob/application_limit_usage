@@ -62,7 +62,7 @@ object CharMain {
     fun resetStats(context: Context) {
         level.intValue = 1
         exp.longValue = 0L
-        dailyHour.value = 4f  // 또는 기본값 0f 등으로 바꿔도 됨
+        dailyHour.value = 4f
 
         val prefs = context.getSharedPreferences("char_stats", Context.MODE_PRIVATE)
         prefs.edit().apply {
@@ -75,6 +75,12 @@ object CharMain {
         Toast.makeText(context, "캐릭터 정보가 초기화되었습니다", Toast.LENGTH_SHORT).show()
     }
 
+    fun levelUpByFive(context: Context) {
+        level.intValue += 5
+        exp.longValue = 0L // Reset exp to 0 for simplicity
+        saveStats(context)
+        Toast.makeText(context, "5레벨 상승! 현재 레벨: ${level.intValue}", Toast.LENGTH_SHORT).show()
+    }
 
     fun startLimitMode(context: Context) {
         if (isLimitMode.value) return
@@ -133,11 +139,9 @@ object CharMain {
         TimePickerDialog(
             context,
             { _, hourOfDay, minute ->
-                // 기상 시간 설정
                 wakeHour = hourOfDay
                 wakeMinute = minute
 
-                // 저장 (선택)
                 val prefs = context.getSharedPreferences("char_stats", Context.MODE_PRIVATE)
                 prefs.edit().apply {
                     putInt("wakeHour", wakeHour)
@@ -159,9 +163,9 @@ object CharMain {
 
     fun accumulateXP(context: Context, ms: Long) {
         val wakeMinutes = wakeHour * 60 + wakeMinute
-        val usableMinutes = (1440 - wakeMinutes).coerceIn(60, 480) // 하루 1~8시간
-        base = usableMinutes * 60 * 0.2  // 1초당 0.2 경험치
-        threshold = base * (1 + 0.02 * (level.value / 10.0))  // 완만한 성장률
+        val usableMinutes = (1440 - wakeMinutes).coerceIn(60, 480)
+        base = usableMinutes * 60 * 0.2
+        threshold = base * (1 + 0.02 * (level.value / 10.0))
 
         val expGain = ms.toDouble() / 1000.0
         val totalExp = exp.value + expGain
@@ -176,7 +180,6 @@ object CharMain {
 
         saveStats(context)
     }
-
 
     private fun startExpTimer(context: Context) {
         expTimerJob?.cancel()
