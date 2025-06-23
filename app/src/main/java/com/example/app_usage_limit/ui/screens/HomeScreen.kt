@@ -200,7 +200,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "어플\n제한",
+                            text = "어플 제한",
                             fontSize = 20.sp,
                             color = Color.Black,
                             textAlign = TextAlign.Center
@@ -228,7 +228,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "하루 사용 시간",
+                            text = "환기 알람 설정",
                             fontSize = 20.sp,
                             color = Color.Black,
                             textAlign = TextAlign.Center
@@ -256,7 +256,7 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "폰 사용 시간\n확인",
+                            text = "기상 시각 설정",
                             fontSize = 20.sp,
                             color = Color.Black,
                             textAlign = TextAlign.Center
